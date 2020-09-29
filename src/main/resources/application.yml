@@ -1,0 +1,11 @@
+
+kafka:
+  topic: test1
+spring:
+  kafka:
+    admin:
+      client-id: client
+    producer:
+      bootstrap-servers: localhost:30092
+    consumer:
+      bootstrap-servers: localhost:30092
