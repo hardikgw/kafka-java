@@ -8,7 +8,10 @@ import com.fasterxml.jackson.databind.SerializationFeature;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
 import org.reactivestreams.Publisher;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.MediaType;
+import org.springframework.kafka.core.KafkaTemplate;
 import org.springframework.messaging.handler.annotation.Payload;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -21,7 +24,15 @@ import java.util.UUID;
 
 @RestController
 public class KafkaController {
+
+    @Value( "${kafka.topic}" )
+    private String topic;
+
+    @Autowired
+    private KafkaTemplate<Object, Object> template;
+
     private ObjectMapper mapper = new ObjectMapper().registerModule(new JavaTimeModule()).configure(SerializationFeature.WRITE_DATES_AS_TIMESTAMPS, false);
+
 
     @GetMapping(value = "/produce", produces = MediaType.TEXT_EVENT_STREAM_VALUE)
     public Publisher<String> socket(@RequestParam int num) {
@@ -39,6 +50,7 @@ public class KafkaController {
                     } catch (JsonProcessingException e) {
                         e.printStackTrace();
                     }
+                    template.send(topic, message);
                     messageFluxSink.next(jsonString);
                 }));
         return messages;

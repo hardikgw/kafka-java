@@ -1,11 +1,15 @@
 
 kafka:
-  topic: test1
+  topic: test2
 spring:
   kafka:
     admin:
       client-id: client
+
     producer:
-      bootstrap-servers: localhost:30092
+      bootstrap-servers: kubernetes.docker.internal:9092
     consumer:
-      bootstrap-servers: localhost:30092
+      bootstrap-servers: kubernetes.docker.internal:9092
+    bootstrap-servers: kubernetes.docker.internal:9092
+
+
