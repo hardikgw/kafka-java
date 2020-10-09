@@ -1,18 +1,17 @@
 
 kafka:
-  topic: test2
+  topic: test7
 spring:
   kafka:
+    bootstrap-servers: localhost:9092
     admin:
       client-id: client
     producer:
-      bootstrap-servers: localhost:9092
       key-serializer: org.apache.kafka.common.serialization.StringSerializer
-      value-serializer: biz.cits.kafka.service.JavaSerializer
+      value-serializer: org.apache.kafka.common.serialization.StringSerializer
     consumer:
-      bootstrap-servers: localhost:9092
       value-deserializer: org.apache.kafka.common.serialization.StringDeserializer
       key-deserializer: org.apache.kafka.common.serialization.StringDeserializer
-    bootstrap-servers: localhost:9092
+
 
 

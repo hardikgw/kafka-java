@@ -11,6 +11,7 @@ import org.reactivestreams.Publisher;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.MediaType;
+import org.springframework.kafka.annotation.KafkaListener;
 import org.springframework.kafka.core.KafkaTemplate;
 import org.springframework.messaging.handler.annotation.Payload;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -25,7 +26,7 @@ import java.util.UUID;
 @RestController
 public class KafkaController {
 
-    @Value( "${kafka.topic}" )
+    @Value("${kafka.topic}")
     private String topic;
 
     @Autowired
@@ -35,7 +36,7 @@ public class KafkaController {
 
 
     @GetMapping(value = "/produce", produces = MediaType.TEXT_EVENT_STREAM_VALUE)
-    public Publisher<String> socket(@RequestParam int num) {
+    public Publisher<String> produce(@RequestParam int num) {
         Flux<String> messages = Flux.create(messageFluxSink ->
                 MsgGenerator.getMessages(num).forEach(message -> {
                     ClientMessage clientMessage = ClientMessage.builder()
@@ -50,9 +51,10 @@ public class KafkaController {
                     } catch (JsonProcessingException e) {
                         e.printStackTrace();
                     }
-                    template.send(topic, message);
+                    template.send(topic, jsonString);
                     messageFluxSink.next(jsonString);
                 }));
         return messages;
     }
+
 }
