@@ -16,7 +16,7 @@ public class KafkaConsumer {
 
     private final Logger logger = LoggerFactory.getLogger(Producer.class);
 
-    @KafkaListener(topics = "${kafka.topic}", groupId = "group_id")
+    @KafkaListener(topics = "${kafka.topic}", groupId = "local")
     public void consume(String message) throws IOException {
         System.out.println(message);
         logger.info(String.format("#### -> Consumed message -> %s", message));
