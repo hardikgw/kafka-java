@@ -1,9 +1,9 @@
 
 kafka:
-  topic: test1
+  topic: test5
 spring:
   kafka:
-    bootstrap-servers: localhost:9092
+    bootstrap-servers: kafka1:9091,kafka2:9092,kafka3:9093
     admin:
       client-id: local
     producer:

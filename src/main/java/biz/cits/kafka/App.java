@@ -36,7 +36,7 @@ public class App {
 
     @Bean
     public NewTopic topic() {
-        return TopicBuilder.name(topic).partitions(30).replicas(1).build();
+        return TopicBuilder.name(topic).partitions(30).replicas(3).build();
     }
 
     @Bean
