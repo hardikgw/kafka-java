@@ -3,7 +3,7 @@ kafka:
   topic: test5
 spring:
   kafka:
-    bootstrap-servers: kafka1:9091,kafka2:9092,kafka3:9093
+    bootstrap-servers: localhost:9091,localhost:9092,localhost:9093
     admin:
       client-id: local
     producer:
