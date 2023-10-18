@@ -1,0 +1,20 @@
+{
+  "type": "record",
+  "namespace": "kafka.client.event",
+  "name": "ClientMessage",
+  "version": "1",
+  "fields": [
+    {
+      "name": "id",
+      "type": "string"
+    },
+    {
+      "name": "content",
+      "type": "string"
+    },
+    {
+      "name": "message_date_time",
+      "type": "long"
+    }
+  ]
+}

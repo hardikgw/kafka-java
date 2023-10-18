@@ -1,59 +1,60 @@
 package biz.cits.kafka;
 
-import org.apache.kafka.clients.admin.NewTopic;
-import org.apache.kafka.common.serialization.Serdes;
-import org.apache.kafka.streams.StreamsBuilder;
-import org.apache.kafka.streams.kstream.Consumed;
-import org.apache.kafka.streams.kstream.KStream;
-import org.springframework.beans.factory.annotation.Autowired;
+import kafka.client.event.ClientMessage;
+import org.apache.kafka.clients.consumer.KafkaConsumer;
+import org.apache.kafka.clients.producer.KafkaProducer;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
-import org.springframework.boot.autoconfigure.kafka.KafkaProperties;
 import org.springframework.context.annotation.Bean;
-import org.springframework.kafka.annotation.KafkaListener;
-import org.springframework.kafka.config.TopicBuilder;
-import org.springframework.kafka.support.serializer.JsonSerde;
+import org.springframework.core.io.ClassPathResource;
+import org.springframework.core.io.Resource;
 import reactor.kafka.receiver.KafkaReceiver;
 import reactor.kafka.receiver.ReceiverOptions;
-import reactor.kafka.receiver.internals.ConsumerFactory;
-import reactor.kafka.receiver.internals.DefaultKafkaReceiver;
 
+import java.io.FileReader;
+import java.io.IOException;
 import java.util.Collections;
+import java.util.Properties;
 
 @SpringBootApplication
 public class App {
 
-    @Value("${kafka.topic}")
-    private String topic;
-
-    @Autowired
-    KafkaProperties properties;
+    @Value("clients2")
+    String topicName;
 
     public static void main(String[] args) {
         SpringApplication.run(App.class, args);
     }
 
-    @Bean
-    public NewTopic topic() {
-        return TopicBuilder.name(topic).partitions(30).replicas(3).build();
+
+    public Properties getProperties(String propertyFileName) {
+        Resource resource = new ClassPathResource(propertyFileName);
+        Properties props = new Properties();
+        try {
+            props.load(new FileReader(resource.getFile()));
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+        return props;
     }
 
     @Bean
-    public KStream<String, String> kStream() {
-        StreamsBuilder builder = new StreamsBuilder();
-        KStream<String, String> stream = builder.stream(topic, Consumed.with(Serdes.String(), new JsonSerde<>(String.class)));
-        stream.foreach((m,n) -> System.out.println(">>>>>>>>>>>>>> Stream >>>>>>>>>>>>>>>>>>" + n));
-        return stream;
+    public KafkaProducer<String, ClientMessage> kafkaProducer() {
+        return new KafkaProducer<>(getProperties("producer.properties"));
     }
 
     @Bean
-    public KafkaReceiver kafkaReceiver(){
-        return new DefaultKafkaReceiver(ConsumerFactory.INSTANCE, ReceiverOptions.create(properties.buildConsumerProperties()).subscription(Collections.singleton(topic)));
+    public KafkaConsumer<String, ClientMessage> kafkaConsumer() {
+        return new KafkaConsumer<>(getProperties("consumer.properties"));
     }
 
-    @KafkaListener(id = "local", topics = "${kafka.topic}")
-    public void kafkaListener(String data) {
-        System.out.println(">>>>>>>>>>>>>>>>>>>>>>>>>>" + data);
+    @Bean
+    public KafkaReceiver<String, ClientMessage> kafkaReceiver() {
+        ReceiverOptions<String, ClientMessage> receiverOptions = ReceiverOptions.<String, ClientMessage>create(getProperties("consumer.properties"))
+                .subscription(Collections.singleton(topicName));
+        return KafkaReceiver.create(receiverOptions);
     }
+
+
 }
